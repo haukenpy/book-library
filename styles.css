@@ -1,0 +1,51 @@
+* {
+    font-size: 24px;
+}
+
+table, th, td {
+    border: 1px solid;
+  }
+
+body {
+    background-color: white;
+}
+
+th {
+    background-color: lightgray;
+}
+
+td {
+    background-color: lightblue;
+}
+
+form {
+    display: grid;
+    gap: 1vw;
+    padding: 1vh;
+    height: 30vh;
+    width: 60vh;
+    grid-template-rows: repeat(5, 1fr);
+}
+
+.new-book {
+    margin-top: 10px;
+}
+
+.table-container {
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button {
+    background-color: white;
+    color: blue;
+    width: 10vw;
+    height: 5vh;
+    border-radius: 20px;
+}
+
+button:hover {
+    background-color: red;
+}
