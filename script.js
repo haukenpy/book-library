@@ -1,63 +1,104 @@
-const myLibrary = [];
 
-const bookTable = document.querySelector("#book-table");
-const dialogWindow = document.querySelector(".new-book-form");
+class libBook {
+   constructor(id, title, author, pages, haveRead) {
+    this.id = id;
+    this.title = title;
+    this.author = author;
+    this.pages = pages;
+    this.haveRead = haveRead;
+   }
 
-function Book(id, title, author, pages, haveRead) {
-  this.id = id;
-  this.title = title,
-  this.author = author,
-  this.pages = pages,
-  this.haveRead = haveRead
-};
-
-Book.prototype.updateReadStatus = function() {
+   updateReadStatus() {
     if (this.haveRead == "Yes") {this.haveRead = "No"}
     else {this.haveRead = "Yes"};
+   }
 }
 
-function addBookToLibrary(newBook) {
+class bookLibrary{
+    constructor(){
+        this.library = [];
+    }
 
-    let bookExists = myLibrary.filter(function(book) {
-        if (newBook.title === book.title) {return book}
-    }); 
+    addBookToLibrary(newBook) {
+        let bookExists = this.library.filter(function(book) {
+            if (newBook.title === book.title) {return book}
+        })
+
+        if (bookExists.length < 1) {
+            this.library.push(newBook)
+            return newBook.id}
+            else {alert("Book is already in library");
+            }
+    }
+
+    removeBookFromLibrary(book) {
+        let bookIndex = this.library.indexOf(book);
+        this.library.splice(bookIndex, 1);
+    }
+}
+
+const libraryModule = function() {
+
+    const bkLibrary = new bookLibrary();
+
+    // DOM elements
+    const bookTable = document.querySelector("#book-table");
+    const dialogWindow = document.querySelector(".new-book-form");
+    const modalButton = document.querySelector(".modal");
+    const addBook = document.querySelector("#new-book");
+
+    // Bind to elements
+    modalButton.addEventListener("click", hideDialog.bind(this));
+    addBook.addEventListener("click", addNewBook) 
     
-    if (bookExists.length < 1) {
-        myLibrary.push(newBook)
-        return newBook.id}
-    else {alert("Book in library");}
-}
+    // Functions
+    function addNewBook() {
 
-function removeBookFromLibrary(book) {
-    let bookIndex = myLibrary.indexOf(book);
-    myLibrary.splice(bookIndex, 1);
-}
+        // DOM selectors
+        let title = document.querySelector("#title").value;
+        let author = document.querySelector("#author").value;
+        let pages = document.querySelector("#pages").value;
+        let haveRead = document.querySelector("#have-read").value;
 
-function newTableRow(book) {
+        let index = bkLibrary.library.length;
+     
+        //Ensure book does not exist in array
+        let newBook = new libBook(index, title, author, pages, haveRead);
+        let bookId = bkLibrary.addBookToLibrary(newBook);
+        
+        if (bookId !== undefined) {newTableRow(newBook)};
+        dialogWindow.close();
+    }
 
-    let rowCount = bookTable.rows.length;
-    let row = bookTable.insertRow(rowCount-1);
-    row.id = book.id;
+    function hideDialog() {
+        dialogWindow.showModal();
+    }
 
+    function newTableRow(book) {
+
+        // Define index for new row.
+        let rowCount = bookTable.rows.length;
+        let row = bookTable.insertRow(rowCount-1);
+        row.id = book.id;
+
+        // Add cell values
         row.insertCell(0).textContent = book.title;
         row.insertCell(1).textContent = book.author;
         row.insertCell(2).textContent = book.pages;
         let readStatus = row.insertCell(3);
-        readStatus.textContent = book.haveRead;
+        readStatus.textContent = book.haveRead;     
 
-        // Delete button to remove entry from table and array.
-
+        // Button to remove book from Library
         let remButton = document.createElement("button");
         remButton.className = "remove-book";
         remButton.textContent = "Remove Book";
         remButton.addEventListener("click", function() {
-            removeBookFromLibrary(book);
+            bkLibrary.removeBookFromLibrary(book);
             remButton.closest("tr").remove();
         });
         row.insertCell(4).append(remButton);
 
-        // Update button to change the readstatus.
-
+        // Button to update readStatus of row
         let updButton = document.createElement("button");
         updButton.className = "updateRead";
         updButton.textContent = "Have Read";
@@ -66,42 +107,20 @@ function newTableRow(book) {
             readStatus.textContent = book.haveRead;  
         });
         row.insertCell(5).append(updButton);
-}
-
-function uploadLibrary(library) {
-    for (let book of library) {
-        newTableRow(book);
     }
-}
 
-const modalButton = document.querySelector(".modal");
-modalButton.addEventListener("click", function() {
-    dialogWindow.showModal();
-});
+    function uploadLibrary(library) {
+        for (let book of library) {
+            newTableRow(book);
+        }
+    }
 
-/* Add dummy values to test the table */
+    /* Add dummy values to test the table */
+    const bookTwo = new libBook(1, "bok2", "author2", 312, "No");
+    const bookOne = new libBook(0, "Abba", "Dabba", 213, "Yes");
+    bkLibrary.addBookToLibrary(bookOne);
+    bkLibrary.addBookToLibrary(bookTwo);
 
-const bookOne = new Book(0, "Abba", "Dabba", 213, "Yes");
-const bookTwo = new Book(1, "bok2", "author2", 312, "No");
-addBookToLibrary(bookOne);
-addBookToLibrary(bookTwo);
+    uploadLibrary(bkLibrary.library);
 
-uploadLibrary(myLibrary);
-
-const addBook = document.querySelector("#new-book");
-addBook.addEventListener("click", () => {
-    
-    let index = myLibrary.length;
-    let title = document.querySelector("#title").value;
-    let author = document.querySelector("#author").value;
-    let pages = document.querySelector("#pages").value;
-    let haveRead = document.querySelector("#have-read").value;
- 
-    //Ensure book does not exist in array
-    let newBook = new Book(index, title, author, pages, haveRead);
-    let bookId = addBookToLibrary(newBook);
-
-    if (bookId) {newTableRow(newBook)};
-    dialogWindow.close();
-});
-
+}();
